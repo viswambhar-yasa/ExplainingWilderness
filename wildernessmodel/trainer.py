@@ -140,9 +140,9 @@ class ANTHROPROTECTBinaryModel:
                     
                     # Update the tqdm progress bar
                     train_iter=+1
-                    self.writer.add_scalar('Loss/train',scalar_value= running_loss/ train_iter,global_step= train_iter)
-                    self.writer.add_scalar('Accuracy/train',scalar_value= accuracy,global_step= train_iter)
-                    t.set_postfix(loss=f"{running_loss / train_iter:.4f}",accuracy=f"{accuracy:.4f}")
+                    self.writer.add_scalar(tag='Loss/train',scalar_value= running_loss/ (train_iter+1),global_step= train_iter)
+                    self.writer.add_scalar(tag='Accuracy/train',scalar_value= accuracy,global_step= train_iter)
+                    t.set_postfix(loss=f"{running_loss / (train_iter+1):.4f}",accuracy=f"{accuracy:.4f}")
                 self.lr_scheduler.step()
 
             # Validation
@@ -178,8 +178,8 @@ class ANTHROPROTECTBinaryModel:
                     # Update the tqdm progress bar
                     valrunning_loss += valloss.item()
                     val_iter += 1
-                    self.writer.add_scalar('Loss/val',scalar_value= valrunning_loss/(val_iter+1), global_step=val_iter)
-                    self.writer.add_scalar('Accuracy/val',scalar_value= val_accuracy,global_step= val_iter)
+                    self.writer.add_scalar(tag='Loss/val',scalar_value= valrunning_loss/(val_iter+1), global_step=val_iter)
+                    self.writer.add_scalar(tag='Accuracy/val',scalar_value= val_accuracy,global_step= val_iter)
                     t.set_postfix(val_accuracy=f"{val_accuracy:.2f}%")
                    
             # Log validation accuracy using TensorBoard SummaryWriter

@@ -30,12 +30,12 @@ if __name__=="__main__":
     torch.cuda.ipc_collect()
     torch.cuda.empty_cache()
     torch.autograd.set_detect_anomaly(True)
-    runtraining=True
+    runtraining=False
     root_dir = 'D:/master-thesis/Dataset/anthroprotect'
     csvfilename="infos.csv"
     #log_dir="./trainedmodels/log_vgg16bn_rgb_oc2_test"
     #log_dir="./trainedmodels/log_alexnet_rgb_oc2_test"
-    log_dir="./trainedmodels/log_resnet_rgb_oc2"
+    log_dir="./trainedmodels/log_resnet_rgb_oc2_test"
     inputchannels=3
     output_channels=2
     trainbatch_size=16

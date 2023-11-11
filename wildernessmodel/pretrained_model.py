@@ -2,8 +2,6 @@ import torch
 import torch.nn as nn
 import torchvision.models as models
 
-
-
 class PretrainedModel:
     def __init__(self,input_channels,output_channels,pretrained_weights="IMAGENET1K_V1") -> None:
         self.input_channels=input_channels
@@ -73,7 +71,7 @@ class PretrainedModel:
         additional_layer7 = nn.Linear(1024, 256)
         additional_layer8 = nn.ReLU(inplace=True)
         additional_layer9 = nn.Dropout(0.5)
-        additional_layer10 = nn.Linear(256, 10)  # Assuming 10 output classes, adjust as needed
+        additional_layer10 = nn.Linear(256, self.output_channels)  # Assuming 10 output classes, adjust as needed
 
         # Modify the model by replacing the original fully connected layer with the additional layers
         pretrained_model.classifier = nn.Sequential(
