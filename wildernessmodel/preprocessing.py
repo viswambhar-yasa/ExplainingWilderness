@@ -199,7 +199,6 @@ if __name__=="__main__":
     custom_dataset = SentinelDataset(csv_filepath, root_dir)
     # Create a DataLoader for batching
     dataloader = DataLoader(custom_dataset, batch_size=batch_size, shuffle=True)
-
     # Example usage within a DataLoader loop
     for batch in dataloader:
         images, labels = batch

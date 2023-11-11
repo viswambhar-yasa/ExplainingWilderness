@@ -56,9 +56,8 @@ class ANTHROPROTECTBinaryModel:
         self.writer.add_text('config/model', self.model.__class__.__name__)
         self.writer.add_text('config/model_details', str(self.model))
         self.writer.add_text('config/optimizer', self.optimizer.__class__.__name__)
-        self.writer.add_text('config/scheduler', self.scheduler.__class__.__name__)
-        self.writer.add_text('config/cuda', str(self.cuda))
- 
+        self.writer.add_text('config/scheduler', self.lr_scheduler.__class__.__name__)
+        self.writer.add_text('config/cuda', str(self.device))
         self.writer.add_text('model', str(self.model))
 
 
@@ -82,7 +81,6 @@ class ANTHROPROTECTBinaryModel:
     
     def calculate_accuracy(self,output, target):
         return torch.true_divide((target == output).sum(dim=0), output.size(0)).item()
-
     
     def train(self):
         """_summary_
@@ -96,12 +94,15 @@ class ANTHROPROTECTBinaryModel:
         checkpoint_path = os.path.join(self.log_dir, 'best_model.pth')
         train_iter=0
         val_iter=0
+        running_acc = 0
+        running_acctotal = 0
+        valrunning_loss=0
+        correct = 0
+        total = 0
         for epoch in range(self.num_epochs):
             running_loss = 0.0
             self.model.train()  # Set model to training mode
             # Use tqdm to create a progress bar for training
-            running_acc = 0
-            running_acctotal = 0
             with tqdm(train_loader, unit="batch") as t:
                 for i, data in enumerate(t):
                     inputs, labels = data
@@ -139,16 +140,14 @@ class ANTHROPROTECTBinaryModel:
                     
                     # Update the tqdm progress bar
                     train_iter=+1
-                    self.writer.add_scalar('Loss/train', running_loss/ (i + 1), train_iter)
-                    self.writer.add_scalar('Accuracy/train', accuracy, train_iter)
-                    t.set_postfix(loss=f"{running_loss / (i + 1):.4f}",accuracy=f"{accuracy:.4f}")
+                    self.writer.add_scalar('Loss/train',scalar_value= running_loss/ train_iter,global_step= train_iter)
+                    self.writer.add_scalar('Accuracy/train',scalar_value= accuracy,global_step= train_iter)
+                    t.set_postfix(loss=f"{running_loss / train_iter:.4f}",accuracy=f"{accuracy:.4f}")
                 self.lr_scheduler.step()
 
             # Validation
             self.model.eval()  # Set model to evaluation mode
-            valrunning_loss=0
-            correct = 0
-            total = 0
+            
             # Use tqdm to create a progress bar for validation
             with torch.no_grad(), tqdm(val_loader, unit="batch") as t:
                 for index,data in enumerate(t):
@@ -179,8 +178,8 @@ class ANTHROPROTECTBinaryModel:
                     # Update the tqdm progress bar
                     valrunning_loss += valloss.item()
                     val_iter += 1
-                    self.writer.add_scalar('Loss/val', valrunning_loss/(index+1), val_iter)
-                    self.writer.add_scalar('Accuracy/val', val_accuracy, val_iter)
+                    self.writer.add_scalar('Loss/val',scalar_value= valrunning_loss/(val_iter+1), global_step=val_iter)
+                    self.writer.add_scalar('Accuracy/val',scalar_value= val_accuracy,global_step= val_iter)
                     t.set_postfix(val_accuracy=f"{val_accuracy:.2f}%")
                    
             # Log validation accuracy using TensorBoard SummaryWriter
@@ -207,14 +206,28 @@ class ANTHROPROTECTBinaryModel:
                 
                 # Forward pass
                 outputs = self.model(inputs)
-                
+                if self.output_channels==1:
+                        # Round predictions to 0 or 1
+                        #loss = self.criterion(outputs, labels.unsqueeze(1).float())
+                        predicted = (outputs > 0.5).float()
+                        total += labels.size(0)
+                        correct += (predicted == labels.unsqueeze(1).float()).sum().item()
+                        #accuray=self.calculate_accuracy(outputs, labels.unsqueeze(1).float())
+                        test_accuracy = 100 * correct / total
+                else:
+                        probabilities = torch.nn.functional.softmax(outputs, dim=1)
+                        # Get the index of the class with the highest probability
+                        predicted = torch.argmax(probabilities, dim=1)
+                        #loss = self.criterion(outputs.float(), labels.long())
+                        # Count the number of correctly classified samples
+                        correct += (predicted == labels).sum().item()
+                        total += labels.size(0)
+                        test_accuracy = 100 * correct / total
                 # Round predictions to 0 or 1
-                predicted = (outputs > 0.5).float()
-                
-                total += labels.size(0)
-                correct += (predicted == labels.unsqueeze(1).float()).sum().item()
-                test_accuracy = 100 * correct / total
                 test_iter+=1
-                self.writer.add_scalar('Accuracy/test', test_accuracy, test_iter)
-        
+                #self.writer.add_scalar('Loss/test', valrunning_loss/(val_iter+1), val_iter)
+                self.writer.add_scalar(tag='Accuracy/test',scalar_value= test_accuracy,global_step=test_iter)
+                t.set_postfix(test_accuracy=f"{test_accuracy:.2f}%")
         print(f"Accuracy on evaluation data: {test_accuracy:.2f}%")
+        self.writer.flush()
+        self.writer.close()

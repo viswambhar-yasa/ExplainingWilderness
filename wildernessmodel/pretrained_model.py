@@ -83,8 +83,6 @@ class PretrainedModel:
             pretrained_model.classifier[3],
             pretrained_model.classifier[4],
             pretrained_model.classifier[5],
-            additional_layer2,
-            additional_layer3,
             additional_layer1,
             additional_layer2,
             additional_layer3,
