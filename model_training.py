@@ -30,15 +30,16 @@ if __name__=="__main__":
     torch.cuda.ipc_collect()
     torch.cuda.empty_cache()
     torch.autograd.set_detect_anomaly(True)
-    runtraining=False
+    torch.cuda.set_per_process_memory_fraction(0.8)
+    runtraining=True
     root_dir = 'D:/master-thesis/Dataset/anthroprotect'
     csvfilename="infos.csv"
-    #log_dir="./trainedmodels/log_vgg16bn_rgb_oc2_test"
+    log_dir="./trainedmodels/log_vgg16bn_rgb_oc2_alllayers"
     #log_dir="./trainedmodels/log_alexnet_rgb_oc2_test"
-    log_dir="./trainedmodels/log_resnet_rgb_oc2_test"
+    #log_dir="./trainedmodels/log_resnet_rgb_oc2_test"
     inputchannels=3
     output_channels=2
-    trainbatch_size=16
+    trainbatch_size=8
     valbatch_size=16
     testbatch_size=16
     device="cpu"
@@ -48,16 +49,16 @@ if __name__=="__main__":
     if not os.path.exists(modelweigthpath):
         modelweigthpath=None
     #wildernessmodel,trainable_layer_names=PM.build_alexnet(modelweigthpath)
-    #wildernessmodel,trainable_layer_names=PM.build_vgg16bn(modelweigthpath)
-    wildernessmodel,trainable_layer_names=PM.build_resnet(modelweigthpath)
+    wildernessmodel,trainable_layer_names=PM.build_vgg16bn(modelweigthpath)
+    #wildernessmodel,trainable_layer_names=PM.build_resnet(modelweigthpath)
     print(wildernessmodel)
     for name, param in wildernessmodel.named_parameters():
-        if "classifier" or "fc" in name:
+        #if "classifier" or "fc" in name:
             param.requires_grad = True
-        else:
-            param.requires_grad = False
+        #else:
+        #    param.requires_grad = False
     train_dataset,val_dataset,test_dataset=get_datasets(root_dir,csv_filepath)
-    trainer=ANTHROPROTECTBinaryModel(wildernessmodel,train_dataset,val_dataset,test_dataset,output_channels,trainbatch_size,valbatch_size,testbatch_size,num_epochs=4,log_dir=log_dir,lr_step_size=1,lr_gamma=0.5)
+    trainer=ANTHROPROTECTBinaryModel(wildernessmodel,train_dataset,val_dataset,test_dataset,output_channels,trainbatch_size,valbatch_size,testbatch_size,num_epochs=2,log_dir=log_dir,lr_step_size=1,lr_gamma=0.5,device="cpu")
     del wildernessmodel,PM,train_dataset,val_dataset,test_dataset
     if runtraining:
         trainer.train()

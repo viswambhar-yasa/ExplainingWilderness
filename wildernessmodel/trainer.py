@@ -8,7 +8,7 @@ from tensorboardX import SummaryWriter
 from torch.optim.lr_scheduler import StepLR
 import copy
 class ANTHROPROTECTBinaryModel:
-    def __init__(self, model, train_dataset, val_dataset, test_dataset,output_channels=2, trainbatch_size=8,valbatch_size=8,testbatch_size=16, num_epochs=2, learning_rate=0.001, log_dir='logs',lr_step_size=10, lr_gamma=0.5):
+    def __init__(self, model, train_dataset, val_dataset, test_dataset,output_channels=2, trainbatch_size=8,valbatch_size=8,testbatch_size=16, num_epochs=2, learning_rate=0.001, log_dir='logs',lr_step_size=10, lr_gamma=0.5,device=None):
         """
         Args:
             model (_type_): _description_
@@ -33,7 +33,10 @@ class ANTHROPROTECTBinaryModel:
         self.num_epochs = num_epochs
         self.learning_rate = learning_rate
         self.output_channels=output_channels
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        if device is None:
+            self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        else:
+            self.device=torch.device(device)
         # Define loss function and optimizer
         if output_channels==1:
             self.criterion = nn.BCEWithLogitsLoss()
@@ -94,13 +97,14 @@ class ANTHROPROTECTBinaryModel:
         checkpoint_path = os.path.join(self.log_dir, 'best_model.pth')
         train_iter=0
         val_iter=0
+        running_loss = 0.0
         running_acc = 0
         running_acctotal = 0
         valrunning_loss=0
         correct = 0
         total = 0
         for epoch in range(self.num_epochs):
-            running_loss = 0.0
+            
             self.model.train()  # Set model to training mode
             # Use tqdm to create a progress bar for training
             with tqdm(train_loader, unit="batch") as t:
@@ -140,9 +144,9 @@ class ANTHROPROTECTBinaryModel:
                     
                     # Update the tqdm progress bar
                     train_iter=+1
-                    self.writer.add_scalar(tag='Loss/train',scalar_value= running_loss/ (train_iter+1),global_step= train_iter)
+                    self.writer.add_scalar(tag='Loss/train',scalar_value=(running_loss/train_iter),global_step= train_iter)
                     self.writer.add_scalar(tag='Accuracy/train',scalar_value= accuracy,global_step= train_iter)
-                    t.set_postfix(loss=f"{running_loss / (train_iter+1):.4f}",accuracy=f"{accuracy:.4f}")
+                    t.set_postfix(loss=f"{(running_loss/train_iter):.4f}",accuracy=f"{accuracy:.4f}")
                 self.lr_scheduler.step()
 
             # Validation
