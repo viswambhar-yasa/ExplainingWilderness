@@ -39,7 +39,7 @@ class SentinelDataset(Dataset):
         self.transform = transform
         self.min_percentile = min_percentile
         self.max_percentile = max_percentile
-        self.mask_categories = {
+        self.mask_categories = { # we need to use the CORINE masks, which has nearly 44 classes, it has masks such as wetlands and bare lands which we need to interpret the results
             0: "NO_DATA",
             1: "SATURATED_OR_DEFECTIVE",
             2: "CAST_SHADOWS",
