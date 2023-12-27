@@ -131,7 +131,10 @@ venv/
 ENV/
 env.bak/
 venv.bak/
-
+thesis/
+wandb/
+experiments/
+wilderness_concepts/
 # Spyder project settings
 .spyderproject
 .spyproject
