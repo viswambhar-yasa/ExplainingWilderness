@@ -24,6 +24,8 @@ parts/
 sdist/
 var/
 wheels/
+experiments/
+experiment/Notebooks/temp/relevance_dict/
 share/python-wheels/
 *.egg-info/
 .installed.cfg
