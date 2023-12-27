@@ -26,7 +26,6 @@ config={
 }
 
 
-
 csv_filepath=os.path.join(config["root_dir"],config["datasplitfilename"])
 trainer=WildernessClassifier(csv_filepath, config["root_dir"],n_classes=config["n_classes"],input_imagetype=config["inputimage_type"],device=config["device"])
 trainer.evaluate(config=config,project_name=config["project_name"])
