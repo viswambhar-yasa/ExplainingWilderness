@@ -9,6 +9,7 @@ import copy
 import torch
 import numpy as np
 import torch.nn as nn
+import matplotlib.pyplot as plt
 from captum.attr import visualization as viz
 from captum.attr import IntegratedGradients,GuidedBackprop,GradientShap,GuidedGradCam,Occlusion,Lime
 
@@ -247,6 +248,7 @@ class XAI:
         if methodlist is None:
             methodlist = self.listofmethods()
         explainationdict = {}
+        plt.ioff()
         for explainmethod in methodlist:
             if explainmethod == "Guided Backprop":
                 if self.GB is None:
@@ -273,19 +275,20 @@ class XAI:
                     self.integratedgradients(multiply_by_inputs)
                 feature = self.IG.attribute(inputs=data, target=targetlabels, baselines=baseline, n_steps=n_steps)
             explainationdict[explainmethod] = feature
-            heatmap, _ = viz.visualize_image_attr(np.transpose(feature.squeeze().cpu().detach().numpy(), (1,2,0)),
+            heatmap= viz.visualize_image_attr(np.transpose(feature.squeeze().cpu().detach().numpy(), (1,2,0)),
                                                   np.transpose(data.squeeze().cpu().detach().numpy(), (1,2,0)),
                                                   method=method,
                                                   cmap=default_cmap,
                                                   show_colorbar=False,
                                                   sign='positive',
                                                   outlier_perc=1,
-                                                  fig_size=fig_size
+                                                  fig_size=fig_size,use_pyplot=False
                                                   )
-            heatmap.suptitle(explainmethod, fontsize=16)
-            heatmap.tight_layout()
+            heatmap[0].suptitle(explainmethod, fontsize=16)
+            heatmap[0].tight_layout()
             file_name = filename + "_" + explainmethod
             filepath = os.path.join(path, file_name + ".png")  # Specify the filename and format
-            heatmap.savefig(filepath, dpi=600, bbox_inches='tight', format="png", pad_inches=0)
-            explainationdict[explainmethod] = (feature, heatmap)
+            heatmap[0].savefig(filepath, dpi=600, bbox_inches='tight', format="png", pad_inches=0)
+            plt.close(heatmap[0])
+            explainationdict[explainmethod] = (feature, heatmap[0])
         return explainationdict
