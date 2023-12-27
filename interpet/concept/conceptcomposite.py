@@ -1,4 +1,3 @@
-from zennit.composites import FlatComposite
 # Author: Viswambhar Yasa
 # Date: 09-01-2024
 # Description: Contains custom composites 
@@ -8,7 +7,6 @@ from zennit.composites import FlatComposite
 import torch.nn as nn
 from itertools import islice
 from zennit.core import Composite
-from zennit.canonizers import Canonizer
 from zennit.rules import Epsilon,ZPlus,ZBox,AlphaBeta,Pass,Flat
 from zennit.types import Linear,Convolution,Activation,AvgPool,BatchNorm
 from zennit.composites import SpecialFirstLayerMapComposite,LayerMapComposite,LAYER_MAP_BASE
