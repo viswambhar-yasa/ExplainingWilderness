@@ -49,6 +49,7 @@ class ConceptRelevance:
         self.cc = ChannelConcept() # relevance of channels of all layer are stored here
         self.register_conceptMasks(layer_type, custom_mask) #if there are any masks, we assign them so relevance flows throught the required area
         self.layertype_map = get_layer_types(self.model) #get the layer map
+        self.fv =None
         pass
     
     def register_conceptMasks(self, layer_type, custom_mask):
@@ -515,7 +516,10 @@ class ConceptRelevance:
         composite = get_composite(compositename, canonizerstype)
         for layer_name, layer_indices in concepts_map.items():
             for batch_index in tqdm(range(0, len(layer_indices)), desc=f'Processing {layer_name}'):
-                channelindex = layer_indices[batch_index][0]
+                if isinstance(layer_indices[batch_index],tuple):
+                    channelindex = layer_indices[batch_index][0]
+                elif isinstance(layer_indices[batch_index],list):
+                    channelindex = layer_indices[batch_index]
                 # generating reference image with max relevance
                 ref = self.fv.get_max_reference(channelindex, layer_name, imagemode, relevance_range, composite, receptivefield, plotfn, batch)
                 path = os.path.join(refimgsavepath, "reference_images_" + str(batch_index))
@@ -576,3 +580,41 @@ class ConceptRelevance:
         self.compute_reference_image(toprelevance_list, dataset, preprocessing, filesavepath, refimgsavepath, compositename=compositename, canonizerstype=canonizerstype, imagecache=imagecache, relevance_range=relevance_range, imagemode=imagemode, plotfn=plotfn, receptivefield=receptivefield, batch=batch)
         pass
         
+    def layer_reference_image(self, layername, dataset, preprocessing, filesavepath,channelindex, compositename="epsilonplus", canonizerstype="vgg", device="cpu", imagecache=False, relevance_range=(0, 8), imagemode="relevance",max_target="max", plotfn=vis_img_heatmap, receptivefield=False,build=True, batch=8, chkpoint=50):
+        """
+        Compute reference images for specific concepts in a given dataset.
+
+        Args:
+            concepts_map (dict): A dictionary mapping layer names to a list of concept indices.
+            dataset: The dataset used to compute the reference images.
+            preprocessing: The preprocessing function applied to the dataset.
+            filesavepath: The path where the reference images will be saved.
+            refimgsavepath (str, optional): The path where the reference images for each concept will be saved. Defaults to ".z".
+            compositename (str, optional): The name of the composite function used for relevance propagation. Defaults to "epsilonplus".
+            canonizerstype (str, optional): The type of canonizers used for relevance propagation. Defaults to "vgg".
+            device (str, optional): The device on which the computation will be performed. Defaults to "cpu".
+            imagecache (bool, optional): Whether to use an image cache for faster computation. Defaults to False.
+            relevance_range (tuple, optional): The range of relevance values used for visualization. Defaults to (0, 8).
+            imagemode (str, optional): The mode used for generating the reference images. Defaults to "relevance".
+            cmap (str, optional): The colormap used for visualization. Defaults to "france".
+            plotfn: The function used for plotting the reference images.
+            receptivefield (bool, optional): Whether to include the receptive field in the reference images. Defaults to False.
+            batch (int, optional): The batch size used for computation. Defaults to 8.
+
+        Returns:
+            None
+        """
+        
+        extracted_dict = {layername: self.layer_map[layername]}
+
+        if self.fv is None:
+            self.fv = FeatureVisualization(self.attribute, dataset, extracted_dict, preprocess_fn=preprocessing, path=filesavepath, device=device, cache="cache", max_target=max_target)
+        composite = get_composite(compositename, canonizerstype)
+        
+        if build: # running the analysis on the entire dataset 
+            _ = self.fv.run(composite, 0, len(dataset), batch, chkpoint)
+        pass
+        self.build_reference_images(dataset, preprocessing, filesavepath, compositename, canonizerstype, device, imagecache, build=False)
+        composite = get_composite(compositename, canonizerstype)
+        ref = self.fv.get_max_reference(channelindex, layername, imagemode, relevance_range, composite, receptivefield, plotfn, batch)
+        return ref
