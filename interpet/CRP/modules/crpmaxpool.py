@@ -65,9 +65,9 @@ class MaxPool2dCRP(nn.MaxPool2d):
         x, self.indicies = super(MaxPool2dCRP, self).forward(input)
         return x
     
-    def interpret(self, previouslayer_input: torch.Tensor, forwardlayerrelevance: dict, concepts=None, conceptindex_estimation=None, top_num=2, rule="lrp0", parameters={}) -> torch.Tensor:
+    def interpet(self, previouslayer_input: torch.Tensor, forwardlayerrelevance: dict, concepts=None, conceptindex_estimation=None, top_num=2, rule="lrp0", parameters={}) -> torch.Tensor:
         """
-        Interprets the relevance of input features by calculating the relevance of each concept in the forwardlayerrelevance dictionary. It performs operations such as clamping, adding epsilon, and max unpooling to calculate the relevance. The relevance of each concept is returned as a dictionary.
+        interpet the relevance of input features by calculating the relevance of each concept in the forwardlayerrelevance dictionary. It performs operations such as clamping, adding epsilon, and max unpooling to calculate the relevance. The relevance of each concept is returned as a dictionary.
 
         Args:
             previouslayer_input (torch.Tensor): The input tensor of the previous layer.
@@ -86,7 +86,7 @@ class MaxPool2dCRP(nn.MaxPool2d):
         Zk, _ = super(MaxPool2dCRP, self).forward(Aij)
         outputsize = Aij.shape
         
-        if rule == "lrpzplus" or rule == "lrpepsilon":
+        if rule == "zplus" or rule == "epsilon":
             Zk = Zk.clamp(min=0)
             Zk += torch.sign(Zk) * parameters["epsilon"] 
         

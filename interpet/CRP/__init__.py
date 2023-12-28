@@ -44,11 +44,11 @@ class CRPModel(nn.Module):
         #default rule parameter
         self.lrp_default_parameters={
             "lrp0":{},
-        "lrpepsilon": {"epsilon": 1, "gamma": 0},
-        "lrpgamma": {"epsilon": 0.25, "gamma": 0.1},
-        "lrpalpha1beta0": {"alpha": 1, "beta": 0,"epsilon": 1e-2, "gamma": 0},
-        "lrpzplus": {"epsilon": 1e-2},
-        "lrpalphabeta": {"epsilon": 1, "gamma": 0, "alpha": 2, "beta": 1}}
+        "epsilon": {"epsilon": 1, "gamma": 0},
+        "gamma": {"epsilon": 0.25, "gamma": 0.1},
+        "alpha1beta0": {"alpha": 1, "beta": 0,"epsilon": 1e-2, "gamma": 0},
+        "zplus": {"epsilon": 1e-2},
+        "alphabeta": {"epsilon": 1, "gamma": 0, "alpha": 2, "beta": 1}}
         
     def converter(self, model):
         """
@@ -169,8 +169,8 @@ class CRPModel(nn.Module):
         for index, (layer, layer_input) in enumerate(reversed(self.layer_inputs.items())):
             if isinstance(layer, LinearCRP) or isinstance(layer, Conv2DCRP) or isinstance(layer, AdaptiveAvgPool2dCRP) or isinstance(layer, MaxPool2dCRP):
                 if index == Nlayer and input_zbetaplus:
-                    rule = "lrpzbetalh"
-                    parameter = self.lrp_default_parameters["lrpepsilon"]
+                    rule = "zbetalh"
+                    parameter = self.lrp_default_parameters["epsilon"]
                 concept_index = (Nlayer - index)
                 if concept_index in concept_ids: #extracting individual concepts from the input dictionary
                     concepts = concept_ids[concept_index]

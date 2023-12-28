@@ -120,7 +120,7 @@ class Conv2DCRP(nn.Conv2d):
             output_padding = (output_shape[-2]-relevance_input_shape[-2],output_shape[-1]-relevance_input_shape[-1])
         else:
             output_padding =0
-        if rule=="lrpzplus":   #implemented the rule based on the Table 3.1 in chapeter 3
+        if rule=="zplus":   #implemented the rule based on the Table 3.1 in chapeter 3
             pAij=Aij.clamp(min=0)
             pweights = self.weight.clamp(min=0)
             if parameters["gamma"]!=0:
@@ -158,7 +158,7 @@ class Conv2DCRP(nn.Conv2d):
                         layerrelevance=pR*pAij
                         outputconceptrelevance[index]=layerrelevance
                 return outputconceptrelevance
-        elif rule=="lrpalphabeta": #implemented the rule based on the Table 3.1 in chapeter 3 perform concept relevance using alpha beta
+        elif rule=="alphabeta": #implemented the rule based on the Table 3.1 in chapeter 3 perform concept relevance using alpha beta
             # seperating negative and posititve activation, weights and calculating pre-activations
             pAij=Aij.clamp(min=0)
             nAij=Aij.clamp(max=0)

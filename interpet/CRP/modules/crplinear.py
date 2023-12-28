@@ -90,7 +90,7 @@ class LinearCRP(nn.Linear):
         if conceptindex_estimation=="relmax": #if relevance maximum needs to be calculated for the forward layer, where the max relevance channels are selected
             self.concept_index=self.conceptmask.max_relevance_concept(fowardlayerrelevance,top_num)
             conceptestimated=True
-        if rule=="lrpzplus": #implemented the rule based on the Table 3.1 in chapeter 3
+        if rule=="zplus": #implemented the rule based on the Table 3.1 in chapeter 3
             pAij=Aij.clamp(min=0)
             pweights = self.weight.clamp(min=0)
             if parameters["gamma"]!=0:
@@ -129,7 +129,7 @@ class LinearCRP(nn.Linear):
                     layerrelevance=pR*pAij
                     outputconceptrelevance[index]=layerrelevance
                 return outputconceptrelevance
-        elif rule=="lrpalphabeta":  #implemented the rule based on the Table 3.1 in chapeter 3 perform concept relevance using alpha beta
+        elif rule=="alphabeta":  #implemented the rule based on the Table 3.1 in chapeter 3 perform concept relevance using alpha beta
             # seperating negative and posititve activation, weights and calculating pre-activations
             pAij=Aij.clamp(min=0)
             nAij=Aij.clamp(max=0)

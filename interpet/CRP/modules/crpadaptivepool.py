@@ -48,9 +48,9 @@ class AdaptiveAvgPool2dCRP(nn.AdaptiveAvgPool2d):
         """
         return super(AdaptiveAvgPool2dCRP, self).forward(input)
     
-    def interpret(self, previouslayer_input: torch.Tensor, forwardlayerrelevance: dict, concepts=None, conceptindex_estimation=None, top_num=2, rule="lrp0", parameters={}) -> dict:
+    def interpet(self, previouslayer_input: torch.Tensor, forwardlayerrelevance: dict, concepts=None, conceptindex_estimation=None, top_num=2, rule="lrp0", parameters={}) -> dict:
         """
-        Interprets the relevance of the previous layer's input based on the relevance of the forward layer's output.
+        interpet the relevance of the previous layer's input based on the relevance of the forward layer's output.
 
         Args:
             previouslayer_input (torch.Tensor): The input tensor of the previous layer.
@@ -73,11 +73,12 @@ class AdaptiveAvgPool2dCRP(nn.AdaptiveAvgPool2d):
         stride = (int(h/H), int(w/W))
         kernel_size = (h-(H-1)*stride[0], (w-(W-1)*stride[1]))
         weight = torch.ones(size=(c, C, kernel_size[0], kernel_size[1])) / (kernel_size[0] * kernel_size[1])
-        if rule == "lrpzplus" or rule == "lrpepsilon": 
+        if rule == "zplus" or rule == "epsilon": 
             if rule == "lrpzplus":
                 Zk = Zk.clamp(min=0)
             Zk += torch.sign(Zk) * parameters["epsilon"]
-        for index, conceptrelevance in forwardlayerrelevance.items():c
+        for index, conceptrelevance in forwardlayerrelevance.items():
+            
             #in adaptive pooling, the pre-activation are not needed to calculated as it is just averaged over 
             conceptrelevance = conceptrelevance.view(Zk.shape)
             sensitivity = (conceptrelevance / Zk)
