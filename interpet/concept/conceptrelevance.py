@@ -242,6 +242,8 @@ class ConceptRelevance:
                 - nodes_dict (dict): A dictionary containing the concept nodes for each layer.
                 - layer_connections (dict): A dictionary containing the connections between layers and their corresponding concept nodes.
         """
+        if not data.requires_grad:
+            data.requires_grad = True 
         composite = get_composite(compositename, canonizerstype) # get propagation rule 
         if build:
             self.build_concept_disentangle(data, record_layers) # build the grpah network
