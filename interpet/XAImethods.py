@@ -9,9 +9,22 @@ import copy
 import torch
 import numpy as np
 import torch.nn as nn
+from PIL import Image
 import matplotlib.pyplot as plt
 from captum.attr import visualization as viz
-from captum.attr import IntegratedGradients,GuidedBackprop,GradientShap,GuidedGradCam,Occlusion,Lime
+from captum.attr import IntegratedGradients,GuidedBackprop,GradientShap,GuidedGradCam,Occlusion,Lime,Deconvolution,NoiseTunnel
+
+
+def fig2img(fig):
+    """Convert a Matplotlib figure to a PIL Image and return it
+    takken from stack over flow https://stackoverflow.com/questions/57316491/how-to-convert-matplotlib-figure-to-pil-image-object-without-saving-image"""
+    import io
+    buf = io.BytesIO()
+    fig.savefig(buf)
+    buf.seek(0)
+    img = Image.open(buf)
+    return img
+
 
 class XAI:
     """
@@ -76,6 +89,8 @@ class XAI:
         self.Shap=None
         self.CAM=None
         self.lime=None
+        self.deconv=None
+        self.nt=None
         pass
     
     def extract_first_layer_weights(self,model):
@@ -139,14 +154,19 @@ class XAI:
     def limemethod(self):
       self.lime=Lime(self.model)
     
+    def decon(self):
+        self.deconv = Deconvolution(self.model)
+    
     def guidedgradcam(self,layer=None):
       if layer is None:
         layer_name=self.extract_first_layer_weights(self.model)
-      print(layer_name)
       self.CAM=GuidedGradCam(self.model,layer=layer_name)
+    
+    def noisetunnel(self,layer=None):
+      self.nt=NoiseTunnel(self.IG)
 
     def listofmethods(self):
-        methods=["Guided BackProp","Grad SHAP","Guided GradCam","Occlusion","Intergrated Gradients"]
+        methods=["Intergrated Gradients","NoiseTunnel","Guided BackProp","Grad SHAP","Guided GradCam","Deconvolution","Occlusion"]
         return methods
 
     def explain_features(self, data, target=None, explainmethod="Integrated Gradients", multiply_by_inputs=True, eps=1e-10, baselinetype="zeros", n_steps=10, feature_mask=None, layer=None, interpolation="nearest", sliding_window_shapes=(1,3,3)):
@@ -198,10 +218,20 @@ class XAI:
             if self.OC is None:
                 self.occlusion()
             features = self.OC.attribute(inputs=data, target=targetlabels, sliding_window_shapes=sliding_window_shapes)
+        elif explainmethod == "Deconvolution":
+            if self.lime is None:
+                self.decon()
+            features = self.deconv.attribute(inputs=data, baselines=baseline, feature_mask=feature_mask, target=targetlabels, n_samples=n_steps)
         elif explainmethod == "LIME":
             if self.lime is None:
                 self.limemethod()
             features = self.lime.attribute(inputs=data, baselines=baseline, feature_mask=feature_mask, target=targetlabels, n_samples=n_steps)
+        elif explainmethod=="NoiseTunnel":
+                if self.IG is None:
+                    self.integratedgradients(multiply_by_inputs)
+                if self.nt is None:
+                    self.noisetunnel()
+                features = self.nt.attribute(inputs=data,nt_type='smoothgrad',nt_samples=10, target=targetlabels)
         else:
             if self.IG is None:
                 self.integratedgradients(multiply_by_inputs)
@@ -270,11 +300,20 @@ class XAI:
                 if self.lime is None:
                     self.limemethod()
                 feature = self.lime.attribute(inputs=data, baselines=baseline, feature_mask=feature_mask, target=targetlabels, n_samples=n_steps)
+            elif explainmethod == "Deconvolution":
+                if self.lime is None:
+                    self.decon()
+                
+            elif explainmethod=="NoiseTunnel":
+                if self.IG is None:
+                    self.integratedgradients(multiply_by_inputs)
+                if self.nt is None:
+                    self.noisetunnel()
+                features = self.nt.attribute(inputs=data,nt_type='smoothgrad',nt_samples=10, target=targetlabels)
             else:
                 if self.IG is None:
                     self.integratedgradients(multiply_by_inputs)
                 feature = self.IG.attribute(inputs=data, target=targetlabels, baselines=baseline, n_steps=n_steps)
-            explainationdict[explainmethod] = feature
             heatmap= viz.visualize_image_attr(np.transpose(feature.squeeze().cpu().detach().numpy(), (1,2,0)),
                                                   np.transpose(data.squeeze().cpu().detach().numpy(), (1,2,0)),
                                                   method=method,
@@ -282,13 +321,28 @@ class XAI:
                                                   show_colorbar=False,
                                                   sign='positive',
                                                   outlier_perc=1,
-                                                  fig_size=fig_size,use_pyplot=False
+                                                  fig_size=fig_size,use_pyplot=False,
+
                                                   )
-            heatmap[0].suptitle(explainmethod, fontsize=16)
+            maskheatmap= viz.visualize_image_attr(np.transpose(feature.squeeze().cpu().detach().numpy(), (1,2,0)),
+                                                  np.transpose(data.squeeze().cpu().detach().numpy(), (1,2,0)),
+                                                  method="masked_image",
+                                                  cmap=default_cmap,
+                                                  show_colorbar=False,
+                                                  sign='positive',
+                                                  outlier_perc=1,
+                                                  fig_size=fig_size,use_pyplot=False,
+
+                                                  )
             heatmap[0].tight_layout()
             file_name = filename + "_" + explainmethod
             filepath = os.path.join(path, file_name + ".png")  # Specify the filename and format
             heatmap[0].savefig(filepath, dpi=600, bbox_inches='tight', format="png", pad_inches=0)
+            maskheatmap[0].tight_layout()
+            maskfilepath = os.path.join(path, file_name + "_mask.png") 
+            maskheatmap[0].savefig(maskfilepath, dpi=600, bbox_inches='tight', format="png", pad_inches=0)
+            explainationdict[explainmethod] = (feature, Image.open(filepath),Image.open(maskfilepath))
+            
             plt.close(heatmap[0])
-            explainationdict[explainmethod] = (feature, heatmap[0])
+            
         return explainationdict
