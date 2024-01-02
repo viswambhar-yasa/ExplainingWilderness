@@ -15,8 +15,8 @@ import torch.nn as nn
 from zennit.attribution import Gradient
 from sentinelmodels.pretrained_models import buildmodel
 from sentinelmodels.preprocessing import SentinelDataset
-from interpet.concept.conceptpropagation import get_composite
-from interpet.concept.conceptrelevance import ConceptRelevance
+from interpret.concept.conceptpropagation import get_composite
+from interpret.concept.conceptrelevance import ConceptRelevance
 from captum.attr import IntegratedGradients,GradientShap,GuidedGradCam,Occlusion
 
 class XAIEvaluation:

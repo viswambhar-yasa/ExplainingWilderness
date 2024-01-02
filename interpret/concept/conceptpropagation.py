@@ -24,7 +24,7 @@ from zennit.torchvision import VGGCanonizer,ResNetCanonizer
 from zennit.composites import EpsilonAlpha2Beta1Flat,EpsilonPlus,EpsilonPlusFlat,EpsilonAlpha2Beta1,Epsilon
 
 
-from interpet.concept.conceptcomposite import EpsilonComposite,module_map
+from interpret.concept.conceptcomposite import EpsilonComposite,module_map
 
 
 

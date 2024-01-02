@@ -7,10 +7,10 @@
 import torch
 import torch.nn as nn
 
-from interpet.CRP.modules.crplinear import LinearCRP
-from interpet.CRP.modules.crpconv2d import Conv2DCRP
-from interpet.CRP.modules.crpmaxpool import MaxPool2dCRP
-from interpet.CRP.modules.crpadaptivepool import AdaptiveAvgPool2dCRP
+from interpret.CRP.modules.crplinear import LinearCRP
+from interpret.CRP.modules.crpconv2d import Conv2DCRP
+from interpret.CRP.modules.crpmaxpool import MaxPool2dCRP
+from interpret.CRP.modules.crpadaptivepool import AdaptiveAvgPool2dCRP
 
 class CRPModel(nn.Module):
     """

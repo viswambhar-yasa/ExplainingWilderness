@@ -13,7 +13,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from experiment.helper_functions import save_dict
-from interpet.XAIevaluation import XAIEvaluation
+from interpret.XAIevaluation import XAIEvaluation
 
 
 

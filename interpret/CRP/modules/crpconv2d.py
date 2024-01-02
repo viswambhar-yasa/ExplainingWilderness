@@ -7,7 +7,7 @@
 import torch 
 import torch.nn as nn
 import torch.nn.functional as F
-from interpet.CRP.modules.ConceptMask import RelevanceConcepts
+from interpret.CRP.modules.ConceptMask import RelevanceConcepts
 
 
 class Conv2DCRP(nn.Conv2d):

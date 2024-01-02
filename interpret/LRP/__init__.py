@@ -6,10 +6,10 @@
 
 import torch
 import torch.nn as nn
-from interpet.LRP.modules.lrplinear import LinearLRP
-from interpet.LRP.modules.lrpconv2d import Conv2DLRP
-from interpet.LRP.modules.lrpmaxpool import MaxPool2dLRP
-from interpet.LRP.modules.lrpadaptivepool import AdaptiveAvgPool2dLRP
+from interpret.LRP.modules.lrplinear import LinearLRP
+from interpret.LRP.modules.lrpconv2d import Conv2DLRP
+from interpret.LRP.modules.lrpmaxpool import MaxPool2dLRP
+from interpret.LRP.modules.lrpadaptivepool import AdaptiveAvgPool2dLRP
 
 
 class LRPModel(nn.Module):

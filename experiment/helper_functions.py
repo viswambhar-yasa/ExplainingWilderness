@@ -13,7 +13,7 @@ from crp.image import imgify
 import matplotlib.pyplot as plt
 
 from sentinelmodels.pretrained_models import buildmodel
-from interpet.concept.conceptrelevance import ConceptRelevance
+from interpret.concept.conceptrelevance import ConceptRelevance
 
 
 def save_dict(dictionary, filename):

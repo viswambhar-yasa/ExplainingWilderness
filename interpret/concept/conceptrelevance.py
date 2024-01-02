@@ -22,8 +22,8 @@ from crp.attribution import AttributionGraph
 from crp.visualization import FeatureVisualization
 from crp.image import vis_opaque_img,vis_img_heatmap,imgify
 
-from interpet.concept.conceptplots import save_to_image,combine_images,save_grid,plot_concepts
-from interpet.concept.conceptpropagation import ConceptVisualization,ConceptRelevanceAttribute,get_composite,get_relevance_function,get_layer_types
+from interpret.concept.conceptplots import save_to_image,combine_images,save_grid,plot_concepts
+from interpret.concept.conceptpropagation import ConceptVisualization,ConceptRelevanceAttribute,get_composite,get_relevance_function,get_layer_types
 
 class ConceptRelevance:
     def __init__(self, model, device=None, overwrite_data_grad=True, no_param_grad=True, layer_type=[nn.Conv2d, nn.Linear], custom_mask=None) -> None:

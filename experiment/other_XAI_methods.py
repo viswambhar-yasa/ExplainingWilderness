@@ -12,7 +12,7 @@ from torchvision.utils import save_image
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 
-from interpet.XAImethods import XAI
+from interpret.XAImethods import XAI
 from experiment.helper_functions import load_dict
 from sentinelmodels.pretrained_models import buildmodel
 
