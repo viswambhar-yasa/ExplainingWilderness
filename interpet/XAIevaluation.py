@@ -179,7 +179,7 @@ class XAIEvaluation:
     
     def explainationfunction(self,model, inputs, targets,abs=False, normalise=False, *args, **kwargs) -> np.array:
         """
-        Wrapper around captum's attribution and custom methods to compute heatmaps.
+        Wrapper around captum's attribution and custom methods to compute heatmaps. Build based on the tutorials from quantus
 
         Args:
             model (torch.nn.Module): The model to be used for attribution.
