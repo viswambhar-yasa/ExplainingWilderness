@@ -81,7 +81,7 @@ class MultiLabelFocalLoss(nn.Module):
 
     def forward(self, input, target):
         if self.alpha is not None:
-            self.alpha = self.alpha.to(input.device)
+            self.alpha = self.alpha.float().to(input.device)
         # Apply sigmoid to get probabilities
         probabilities = torch.sigmoid(input) #
 

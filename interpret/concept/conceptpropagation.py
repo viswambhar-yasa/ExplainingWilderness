@@ -119,6 +119,16 @@ def get_relevance_function(output_type):
         mask = (relevance == max_values)
         init_relevance = (-(mask == 0).float() + (mask > 0).float())
         return init_relevance
+    
+    def sigmoidmax_relevance(output,threshold=0.5):
+        relevance = torch.sigmoid(output)
+        mask = (relevance >= threshold)
+        init_relevance = mask.float()
+        return init_relevance
+    
+    def sigmoid_relevance(output):
+        init_relevance = torch.sigmoid(output)
+        return init_relevance
 
     def max_relevance(output):
         predictions = torch.softmax(output, dim=-1)
@@ -151,6 +161,10 @@ def get_relevance_function(output_type):
         return log_softmax_relevance
     elif output_type == "max_activation":
         return max_activation
+    elif output_type == "sigmoidmax":
+        return sigmoidmax_relevance
+    elif output_type == "sigmoid":
+        return sigmoid_relevance
     else:
         return None
         
@@ -196,10 +210,11 @@ class ConceptRelevanceAttribute(CondAttribution):
 
         if target_list:
             mask = torch.zeros_like(output_selection)
+            #print(mask)
             for i, targets in enumerate(target_list):
                 mask[i, targets] = output_selection[i, targets]
             output_selection = mask
-
+        #print(output_selection)
         return output_selection
     
 

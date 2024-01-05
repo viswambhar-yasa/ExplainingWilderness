@@ -13,7 +13,7 @@ import numpy as np
 from tqdm import tqdm
 import torch.optim as optim
 from torch.optim.lr_scheduler import StepLR,ExponentialLR
-from sklearn.metrics import confusion_matrix,accuracy_score, precision_score, recall_score, f1_score
+from sklearn.metrics import confusion_matrix,multilabel_confusion_matrix,accuracy_score, precision_score, recall_score, f1_score
 
 
 from sentinelmodels.pretrained_models import buildmodel
@@ -338,11 +338,15 @@ class WildernessClassifier:
                         train_metric = {f'train_{key}': value for key, value in metrics.items()}
                         wandb.log(train_metric)
                         t.set_postfix(metrics)
-                learningrate_scheduler.step()
+                #learningrate_scheduler.step()
+                #my_lr = learningrate_scheduler.get_lr()
+# or
+                #my_lr = learningrate_scheduler.optimizer.param_groups[0]['lr']
+                my_lr=config.lr
                 epoch_loss = running_loss / step_iterator
                 epoch_accuracy = running_accuracy / step_iterator
                 val_loss, val_accuracy = self.valid_model(log_images, batch_idx)
-                t.write(f"Epoch [{epoch+1}/{config.epochs}] - Loss: {epoch_loss:.4f}, Accuracy: {epoch_accuracy :.2f}%, Val Accuracy: {val_accuracy :.2f}%")
+                t.write(f"Epoch [{epoch+1}/{config.epochs}] - Loss: {epoch_loss:.4f}, Accuracy: {epoch_accuracy :.2f}%, Val Accuracy: {val_accuracy :.2f}%, learning Rate:{my_lr:.4f}")
                 if best_val_loss - val_loss > min_delta:
                     best_val_loss = val_loss
                     early_stopping_counter = 0
@@ -551,7 +555,7 @@ class WildernessMultlabelClassifier(WildernessClassifier):
     
 
     def load_model(self,modeltype,n_classes=2,multilabel=5,trainable=False,modelweights=None,pretrained_weights="IMAGENET1K_V1"):
-        self.model=buildmodel(modeltype,n_classes,multilabel,parameterstrainable=trainable,modelweightpath=modelweights,pretrained_weights=pretrained_weights).to(self.device)
+        self.model=buildmodel(modeltype,multilabel,None,parameterstrainable=trainable,modelweightpath=modelweights,pretrained_weights=pretrained_weights).to(self.device)
         pass
     
 
@@ -778,6 +782,13 @@ class WildernessMultlabelClassifier(WildernessClassifier):
                 metrics["running_accuracy"] = running_testaccuracy / step_testiterator
                 metrics["globalstep"] = step_testiterator
                 test_metric = {f'test_{key}': value for key, value in metrics.items()}
+                probability = torch.sigmoid(testoutput)
+                predicted.append((probability>0.5).float().to("cpu").tolist())
+                groundtruth.append(labels.to("cpu").tolist())
                 wandb.log(test_metric)
-        
+            cm=multilabel_confusion_matrix(np.array(predicted), np.array(groundtruth))
+            print(cm)
+            wandb.log({"conf_mat": wandb.plot.confusion_matrix(
+                        y_true=groundtruth, preds=predicted,
+                        class_names=wandb.config.classnames)})
             return running_testaccuracy / step_testiterator
