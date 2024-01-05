@@ -26,6 +26,7 @@ var/
 wheels/
 experiments/
 experiment/Notebooks/temp/relevance_dict/
+experiment/Notebooks/referenceimages/
 share/python-wheels/
 *.egg-info/
 .installed.cfg
