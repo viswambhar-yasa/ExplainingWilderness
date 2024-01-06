@@ -1,6 +1,6 @@
 # Layer-Wise Relevance Propagation (LRP) Overview
 
-![Layer-Wise Relevance Propagation Procedure]([https://www.researchgate.net/publication/342593824/figure/fig3/AS:11431281172869518@1688696619683/Illustration-of-the-layerwise-relevance-propagation-LRP-procedure-used-in-this-study.png](https://www.researchgate.net/publication/342593824/figure/fig3/AS:11431281172869518@1688696619683/Illustration-of-the-layerwise-relevance-propagation-LRP-procedure-used-in-this-study.png)](https://images.viblo.asia/977a5b5b-2f08-47de-af0d-4086a7978d90.png))
+![Layer-Wise Relevance Propagation Procedure] (https://images.viblo.asia/977a5b5b-2f08-47de-af0d-4086a7978d90.png)
 
 #### Figure 1: Illustration of Layer-Wise Relevance Propagation Procedure [3]
 
