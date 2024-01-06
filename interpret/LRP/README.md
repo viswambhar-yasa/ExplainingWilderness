@@ -1,9 +1,5 @@
 # Layer-Wise Relevance Propagation (LRP) Overview
 
-![Layer-Wise Relevance Propagation Procedure] (https://images.viblo.asia/977a5b5b-2f08-47de-af0d-4086a7978d90.png)
-
-#### Figure 1: Illustration of Layer-Wise Relevance Propagation Procedure [3]
-
 ## Introduction [1]
 
 LRP is an explanation technique designed for neural network models. It facilitates the understanding of model predictions by propagating them backward through the network via purpose-designed local propagation rules. This README provides an overview of LRP, its rules for deep rectifier networks, implementation details, and applications.
