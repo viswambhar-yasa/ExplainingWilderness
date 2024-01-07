@@ -265,7 +265,7 @@ class ConceptRelevance:
         layer_connections[conceptlayer] = nodes_dict[conceptlayer]
         return nodes_dict, layer_connections
     
-    def visualize_concept_disentangle(self, data, channel_index, conceptlayer, higher_concept_index=1, compositename="epsilonplus", canonizerstype="vgg", output_type="max", filename="concepts", filepath="./conceptdisentangle", record_layers=None, width=[3,1], build=True, abs_norm=True, level=2, figsize=(25,15)):
+    def visualize_concept_disentangle(self, data,condition, channel_index, conceptlayer, higher_concept_index=1, compositename="epsilonplus", canonizerstype="vgg", output_type="max", filename="concepts", filepath="./conceptdisentangle", record_layers=None, width=[3,1], build=True, abs_norm=True, level=2, figsize=(25,15)):
         """
         Visualizes the concept disentanglement process in the ConceptRelevance class by generating heatmaps and saving them as images.
 
