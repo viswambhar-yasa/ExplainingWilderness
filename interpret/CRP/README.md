@@ -1,4 +1,4 @@
-# Concept Relevance Propagation (CRP) Method README
+# Concept Relevance Propagation (CRP) Method Overview
 
 ## Introduction
 The Concept Relevance Propagation (CRP) method addresses challenges related to interpreting attribution scores in neural networks, particularly focusing on hidden layer representations. This README outlines the key components and principles of the CRP method.
